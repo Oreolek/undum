@@ -4,7 +4,7 @@
 // define the content of the game.
 // ---------------------------------------------------------------------------
 
-(function($) {
+(function() {
     // -----------------------------------------------------------------------
     // Internal Infrastructure Implementations [NB: These have to be
     // at the top, because we use them below, but you can safely
@@ -57,7 +57,7 @@
     var isMobileDevice = function() {
         return (navigator.userAgent.toLowerCase().search(
             /iphone|ipad|palm|blackberry|android/
-        ) >= 0 || $("html").width() <= 640);
+        ) >= 0 || document.querySelectorAll('html').offsetWidth <= 640);
     };
 
     // Assertion
@@ -72,6 +72,28 @@
         if (!expression) {
             throw new AssertionError(message);
         }
+    };
+
+    // Object extention
+    var extend = function(out) {
+      out = out || {};
+      for (var i = 1; i < arguments.length; i++) {
+        var obj = arguments[i];
+
+        if (!obj)
+          continue;
+
+        for (var key in obj) {
+          if (obj.hasOwnProperty(key)) {
+            if (typeof obj[key] === 'object')
+              extend(out[key], obj[key]);
+            else
+              out[key] = obj[key];
+          }
+        }
+      }
+
+      return out;
     };
 
     // -----------------------------------------------------------------------
@@ -174,7 +196,7 @@
             // (use the canView function to do context sensitive
             // manipulation).
             if (opts.tags !== undefined) {
-                if ($.isArray(opts.tags)) {
+                if (Array.isArray(opts.tags)) {
                     this.tags = opts.tags;
                 } else {
                     this.tags = opts.tags.split(/[ \t,]+/);
@@ -213,7 +235,7 @@
      * list of options generated automatically by the given
      * situation. */
     Situation.prototype.canView = function(character, system, situation) {
-        if ($.isFunction(this._canView)) {
+        if (Function.isFunction(this._canView)) {
             return this._canView(character, system, situation);
         } else {
             return this._canView;
@@ -222,7 +244,7 @@
     /* Determines whether this situation should be clickable within a
      * list of options generated automatically by the given situation. */
     Situation.prototype.canChoose = function(character, system, situation) {
-        if ($.isFunction(this._canChoose)) {
+        if (Function.isFunction(this._canChoose)) {
             return this._canChoose(character, system, situation);
         } else {
             return this._canChoose;
@@ -231,7 +253,7 @@
     /* Returns the text that should be used to display this situation
      * in an automatically generated list of choices. */
     Situation.prototype.optionText = function(character, system, situation) {
-        if ($.isFunction(this._optionText)) {
+        if (Function.isFunction(this._optionText)) {
             return this._optionText(character, system, situation);
         } else {
             return this._optionText;
@@ -304,7 +326,7 @@
     SimpleSituation.inherits(Situation);
     SimpleSituation.prototype.enter = function(character, system, from) {
         if (this.heading) {
-            if ($.isFunction(this.heading)) {
+            if (Function.isFunction(this.heading)) {
                 system.writeHeading(this.heading());
             } else {
                 system.writeHeading(this.heading);
@@ -312,7 +334,7 @@
         }
         if (this._enter) this._enter(character, system, from);
         if (this.content) {
-            if ($.isFunction(this.content)) {
+            if (Function.isFunction(this.content)) {
                 system.write(this.content());
             } else {
                 system.write(this.content);
@@ -374,11 +396,11 @@
      * values in different ways.
      */
     var QualityDefinition = function(title, opts) {
-        var myOpts = $.extend({
+        var myOpts = extend(opts, {
             priority: title,
             group: null,
             extraClasses: null
-        }, opts);
+        });
         this.title = title;
         this.priority = myOpts.priority;
         this.group = myOpts.group;
@@ -455,10 +477,10 @@
      * Other options are the same as for QualityDefinition.
      */
     var WordScaleQuality = function(title, values, opts) {
-        var myOpts = $.extend({
+        var myOpts = extend(opts, {
             offset: null,
             useBonuses: true
-        }, opts);
+        });
         QualityDefinition.call(this, title, opts);
         this.values = values;
         this.offset = myOpts.offset;
@@ -505,9 +527,9 @@
      * object. Other options (in the opts parameter) are the same as
      * for QualityDefinition. */
     var OnOffQuality = function(title, opts) {
-        var myOpts = $.extend({
+        var myOpts = extend(opts, {
             onDisplay: ""
-        }, opts);
+        });
         QualityDefinition.call(this, title, opts);
         this.onDisplay = myOpts.onDisplay;
     };
@@ -526,10 +548,10 @@
      * default to 'yes' and 'no'.
      */
     var YesNoQuality = function(title, opts) {
-        var myOpts = $.extend({
+        var myOpts = extend(opts,{
             yesDisplay: "yes".l(),
             noDisplay: "no".l()
-        }, opts);
+        });
         QualityDefinition.call(this, title, opts);
         this.yesDisplay = myOpts.yesDisplay;
         this.noDisplay = myOpts.noDisplay;
@@ -544,10 +566,10 @@
      * under the given optional title. These should be defined in the
      * `undum.game.qualityGroups` parameter. */
     var QualityGroup = function(title, opts) {
-        var myOpts = $.extend({
+        var myOpts = extend(opts,{
             priority: title,
             extraClasses: null
-        }, opts);
+        });
         this.title = title;
         this.priority = myOpts.priority;
         this.extraClasses = myOpts.extraClasses;
@@ -576,9 +598,9 @@
      */
     System.prototype.clearContent = function(elementSelector) {
         var $element;
-        if (elementSelector) $element = $(elementSelector);
-        if (!$element) $element = $("#content");
-        $element.empty();
+        if (elementSelector) $element = document.querySelectorAll(elementSelector);
+        if (!$element) $element = document.getElementById("content");
+        $element.innerHTML = '';
     };
 
     /* Outputs regular content to the page. The content supplied must
@@ -609,7 +631,7 @@
      * after the element that matches that selector.
      */
     System.prototype.writeHeading = function(headingContent, elementSelector) {
-        var heading = $("<h1>").html(headingContent);
+        var heading = document.querySelectorAll("<h1>").innerHtml = headingContent;
         doWrite(heading, elementSelector, 'append', 'after');
     };
 
@@ -666,9 +688,9 @@
      * is no longer available. It is used automatically when you give
      * a link the 'once' class. */
     System.prototype.clearLinks = function(code) {
-        $("a[href='" + code + "']").each(function(index, element) {
-            var a = $(element);
-            a.replaceWith($("<span>").addClass("ex_link").html(a.html()));
+        var links = document.querySelectorAll("a[href='" + code + "']");
+        Array.prototype.forEach.call(links, function(element, index){
+            element.querySelectorAll("span").classList.add("ex_link");
         });
     };
 
@@ -690,7 +712,7 @@
         if (listOfIds.length === 0) return;
 
         var currentSituation = getCurrentSituation();
-        var $options = $("<ul>").addClass("options");
+        var $options = document.getElementById("content").querySelectorAll("ul").classList.add("options");
         for (var i = 0; i < listOfIds.length; ++i) {
             var situationId = listOfIds[i];
             var situation = game.situations[situationId];
@@ -699,16 +721,15 @@
             var optionText = situation.optionText(character, this,
                                                   currentSituation);
             if (!optionText) optionText = "choice".l({number:i+1});
-            var $option = $("<li>");
+            var $option = document.getElementById("content").querySelectorAll("li");
             var $a;
             if (situation.canChoose(character, this, currentSituation)) {
-                $a = $("<a>").attr({href: situationId});
+                $a = "<a href='"+situationId+"'>"+optionText+"</a>"
             } else {
-                $a = $("<span>");
+                $a = "<span>"+optionText+"</span>";
             }
-            $a.text(optionText);
-            $option.html($a);
-            $options.append($option);
+            $option.innerHtml = $a;
+            $options.appendChild($option);
         }
         doWrite($options, elementSelector, 'append', 'after');
     };
@@ -774,7 +795,7 @@
         var i;
 
         // First check if we have a single string for the id or tag.
-        if ($.type(listOfOrOneIdsOrTags) == 'string') {
+        if (Object.prototype.toString.call(listOfOrOneIdsOrTags).replace(/^\[object (.+)\]$/, "$1").toLowerCase() == 'string') {
             listOfOrOneIdsOrTags = [listOfOrOneIdsOrTags];
         }
 
@@ -878,15 +899,15 @@
      * `System.prototype.write` for the definition).
      */
     System.prototype.setCharacterText = function(content) {
-        var block = $("#character_text_content");
-        var oldContent = block.html();
+        var block = document.getElementById("character_text_content");
+        var oldContent = block.innerHtml;
         var newContent = augmentLinks(content);
         if (interactive && block.is(':visible')) {
             block.fadeOut(250, function() {
-                block.html(newContent);
+                block.innerHtml = newContent;
                 block.fadeIn(750);
             });
-            showHighlight($("#character_text"));
+            showHighlight(document.getElementById("character_text"));
         } else {
             block.html(newContent);
         }
@@ -912,7 +933,7 @@
         }
 
         // Add the data block, if we need it.
-        var qualityBlock = $("#q_"+quality);
+        var qualityBlock = document.getElementById("#q_"+quality);
         if (qualityBlock.length <= 0) {
             if (newDisplay === null) return;
             qualityBlock = addQualityBlock(quality).hide().fadeIn(500);
@@ -1003,7 +1024,7 @@
             myOpts.from = 1;
             myOpts.to = 0;
         }
-        $.extend(myOpts, opts);
+        extend(opts, myOpts);
 
         // Run through the quality definition.
         var qualityDefinition = game.qualities[quality];
@@ -1023,9 +1044,9 @@
 
         // Create the animated bar.
         var totalWidth = 496;
-        var bar = $("#ui_library #progress_bar").clone();
-        bar.removeAttr("id");
-        var widthElement = bar.find("[data-attr='width']");
+        var bar = document.getElementById("progress_bar").cloneNode(true);
+        bar.setAttribute("id", undefined);
+        var widthElement = bar.find("[data-attr='width']"); // TODO
         widthElement.css('width', myOpts.from*totalWidth);
 
         // Configure its labels
@@ -1053,7 +1074,7 @@
         } else {
             rightLabel.remove();
         }
-        $('#content').append(bar);
+        document.getElementById('content').appendChild(bar);
 
         // Start the animation
         setTimeout(function() {
@@ -1264,7 +1285,7 @@
     };
 
     var parseList = function(str, canBeUndefined) {
-        if (str === undefined) {
+        if (str === undefined || str === null) {
             if (canBeUndefined) {
                 return undefined;
             } else {
@@ -1287,28 +1308,27 @@
     };
 
     var loadHTMLSituations = function() {
-        var $htmlSituations = $("div.situation");
-        $htmlSituations.each(function() {
-            var $situation = $(this);
-            var id = $situation.attr("id");
+        var $htmlSituations = document.querySelectorAll("div.situation");
+        Array.prototype.forEach.call($htmlSituations, function($situation){
+            var id = $situation.getAttribute("id");
             assert(game.situations[id] === undefined,
                    "existing_situation".l({id:id}));
 
-            var content = $situation.html();
+            var content = $situation.innerHtml;
             var opts = {
                 // Situation content
-                optionText: $situation.attr("data-option-text"),
-                canView: parseFn($situation.attr("data-can-view")),
-                canChoose: parseFn($situation.attr("data-can-choose")),
-                priority: parse($situation.attr("data-priority")),
-                frequency: parse($situation.attr("data-frequency")),
-                displayOrder: parse($situation.attr("data-display-order")),
-                tags: parseList($situation.attr("data-tags"), false),
+                optionText: $situation.getAttribute("data-option-text"),
+                canView: parseFn($situation.getAttribute("data-can-view")),
+                canChoose: parseFn($situation.getAttribute("data-can-choose")),
+                priority: parse($situation.getAttribute("data-priority")),
+                frequency: parse($situation.getAttribute("data-frequency")),
+                displayOrder: parse($situation.getAttribute("data-display-order")),
+                tags: parseList($situation.getAttribute("data-tags"), false),
                 // Simple Situation content.
-                heading: $situation.attr("data-heading"),
-                choices: parseList($situation.attr("data-choices"), true),
-                minChoices: parse($situation.attr("data-min-choices")),
-                maxChoices: parse($situation.attr("data-max-choices"))
+                heading: $situation.getAttribute("data-heading"),
+                choices: parseList($situation.getAttribute("data-choices"), true),
+                minChoices: parse($situation.getAttribute("data-min-choices")),
+                maxChoices: parse($situation.getAttribute("data-max-choices"))
             };
 
             game.situations[id] = new SimpleSituation(content, opts);
@@ -1733,7 +1753,7 @@
         progress.sequence = [{link:game.start, when:0}];
 
         // Empty the display
-        $("#content").empty();
+        document.getElementById("content").innerHtml = '';
 
         // Start the game
         startTime = new Date().getTime() * 0.001;
@@ -1822,29 +1842,39 @@
     };
 
     /* Set up the game when everything is loaded. */
-    $(function() {
+    function ready(fn) {
+      if (document.readyState != 'loading'){
+        fn();
+      } else {
+        document.addEventListener('DOMContentLoaded', fn);
+      }
+    }
+
+    ready(function() {
         // Compile additional situations from HTML
         loadHTMLSituations();
 
         // Handle storage.
         if (hasLocalStorage()) {
-            var erase = $("#erase").click(function() {
-                doErase();
-            });
-            var save = $("#save").click(saveGame);
+            var erase = document.getElementById("erase");
+            erase.addEventListener("click", doErase());
+            erase.addEventListener("keydown", doErase());
+            var save = document.getElementById("save");
+            save.addEventListener("click", saveGame);
+            save.addEventListener("keydown", saveGame);
 
             var storedCharacter = localStorage[getSaveId()];
             if (storedCharacter) {
                 try {
                     loadGame(JSON.parse(storedCharacter));
-                    save.attr('disabled', true);
-                    erase.attr("disabled", false);
+                    save.setAttribute('disabled', true);
+                    erase.setAttribute("disabled", false);
                 } catch(err) {
                     doErase(true);
                 }
             } else {
-                save.attr('disabled', true);
-                erase.attr("disabled", true);
+                save.setAttribute('disabled', true);
+                erase.setAttribute("disabled", true);
                 startGame();
             }
         } else {
@@ -2012,7 +2042,7 @@
         // API
         String.prototype.l = function(args) {
             // Get lang attribute from html tag.
-            var lang = $("html").attr("lang") || "";
+            var lang = document.querySelector("html").getAttribute("lang") || "";
 
             // Find the localized form.
             var localized = localize(lang, this);
@@ -2265,4 +2295,4 @@
     // preferred language.
     undum.language[""] = en;
     undum.language["en"] = en;
-}(jQuery));
+}());
