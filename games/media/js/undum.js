@@ -60,20 +60,19 @@
         ) >= 0 || document.querySelectorAll('html').offsetWidth <= 640);
     };
 
-    // Animations - you can totally redefine these! Fade in and fade out by default.
+    /// Animations - you can totally redefine these! Fade in and fade out by default.
+    /// @param id string or object
     var showBlock = function(id) {
-      console.log(typeof id);
+      var block = id;
       if (typeof id === "string") {
         var block = document.getElementById(id);
       }
-      if (typeof id === "element") {
-        var block = id;
-      }
       block.classList.add('show');
       block.classList.remove('hide');
+      block.style.display = 'block';
     }
     
-    var showBlock = function(id) {
+    var hideBlock = function(id) {
       if (typeof id === "string") {
         var block = document.getElementById(id);
       }
@@ -644,7 +643,7 @@
      * after the element that matches that selector.
      */
     System.prototype.write = function(content, elementSelector) {
-        doWrite(content, elementSelector, 'append', 'after');
+        doWrite(content, elementSelector);
     };
 
     /* Outputs the given content in a heading on the page. The content
@@ -655,8 +654,9 @@
      * after the element that matches that selector.
      */
     System.prototype.writeHeading = function(headingContent, elementSelector) {
-        var heading = document.querySelectorAll("<h1>").innerHtml = headingContent;
-        doWrite(heading, elementSelector, 'append', 'after');
+        var heading = document.createElement("<h1>");
+        heading.innerHTML = headingContent;
+        doWrite(heading, elementSelector);
     };
 
     /* Outputs regular content to the page. The content supplied must
@@ -752,7 +752,7 @@
             } else {
                 $a = "<span>"+optionText+"</span>";
             }
-            $option.innerHtml = $a;
+            $option.innerHTML = $a;
             $options.appendChild($option);
         }
         doWrite($options, elementSelector, 'append', 'after');
@@ -924,16 +924,15 @@
      */
     System.prototype.setCharacterText = function(content) {
         var block = document.getElementById("character_text_content");
-        var oldContent = block.innerHtml;
+        var oldContent = block.innerHTML;
         var newContent = augmentLinks(content);
         if (interactive && block.offsetWidth > 0 && block.offsetHeight > 0) {
-            block.fadeOut(250, function() {
-                block.innerHtml = newContent;
-                block.fadeIn(750);
-            });
-            showHighlight(document.getElementById("character_text"));
+            hideBlock(block);
+            block.innerHTML = newContent;
+            showBlock(block);
+            showHighlight(block.parent);
         } else {
-            block.innerHtml = newContent;
+            block.innerHTML = newContent;
         }
     };
 
@@ -1338,7 +1337,7 @@
             assert(game.situations[id] === undefined,
                    "existing_situation".l({id:id}));
 
-            var content = $situation.innerHtml;
+            var content = $situation.innerHTML;
             var opts = {
                 // Situation content
                 optionText: $situation.getAttribute("data-option-text"),
@@ -1364,6 +1363,7 @@
      * writeBefore, the last two arguments control what jQuery methods
      * are used to add the content.
      */
+    // TODO: this function can append text, prepend text or replace text in selector with the supplied one.
     var doWrite = function(content, selector) {
         continueOutputTransaction();
         var output = augmentLinks(content);
@@ -1377,7 +1377,7 @@
           // TODO: scrollStack[scrollStack.length-1] = scrollPoint;*/
         }
         if (!element) {
-            document.getElementById('content').innerHtml = output;
+            document.getElementById('content').innerHTML = output;
         }
         else {
             element.appendChild(output);
@@ -1406,7 +1406,7 @@
 
     /* Adds the quality blocks to the character tools. */
     var showQualities = function() {
-        document.getElementById("qualities").innerHtml = '';
+        document.getElementById("qualities").innerHTML = '';
         for (var qualityId in character.qualities) {
             addQualityBlock(qualityId);
         }
@@ -1456,7 +1456,7 @@
 
         var titleElement = groupBlock.querySelectorAll("[data-attr='title']");
         if (groupDefinition.title) {
-            titleElement.innerHtml = groupDefinition.title;
+            titleElement.innerHTML = groupDefinition.title;
         } else {
             if (titleElement.parentNode != undefined)
             {
@@ -1496,8 +1496,8 @@
         var qualityBlock = document.getElementById("quality").cloneNode(true);
         qualityBlock.setAttribute("id", "q_"+qualityId);
         qualityBlock.setAttribute("data-priority", qualityDefinition.priority);
-        qualityBlock.querySelectorAll("[data-attr='name']").innerHtml = name;
-        qualityBlock.querySelectorAll("[data-attr='value']").innerHtml = val;
+        qualityBlock.querySelectorAll("[data-attr='name']").innerHTML = name;
+        qualityBlock.querySelectorAll("[data-attr='value']").innerHTML = val;
         if (qualityDefinition.extraClasses) {
             for (var i = 0; i < qualityDefinition.extraClasses.length; i++) {
                 qualityBlock.className.add(qualityDefinition.extraClasses[i]);
@@ -1711,7 +1711,8 @@
 
     /* Returns HTML from the given content with the non-raw links
      * wired up. 
-     * @param content HTML code */
+     * @param content string HTML code 
+     * @retval string */
     var augmentLinks = function(content) {
         // Wire up the links for regular <a> tags.
         output = document.createElement('div');
@@ -1739,7 +1740,7 @@
             }
         });
 
-        return output;
+        return output.innerHTML;
     };
 
     /* Erases the character in local storage. This is permanent! */
@@ -1791,7 +1792,7 @@
         progress.sequence = [{link:game.start, when:0}];
 
         // Empty the display
-        document.getElementById("content").innerHtml = '';
+        document.getElementById("content").innerHTML = '';
 
         // Start the game
         startTime = new Date().getTime() * 0.001;
@@ -1922,7 +1923,7 @@
 
         // Display the "click to begin" message. (We do this in code
         // so that, if Javascript is off, it doesn't happen.)
-        document.querySelector(".click_message").style.display = '';
+        document.getElementById("click_message").style.display = '';
 
         // Show the game when we click on the title.
         document.getElementById("title").addEventListener('click', function() {
@@ -1930,12 +1931,8 @@
             showBlock("content_wrapper");
             showBlock("legal");
             showBlock("tools_wrapper");
-            $("#title").css("cursor", "default");
-            $("#title .click_message").fadeOut(250);
-            if (mobile) {
-                $("#toolbar").slideDown(500);
-                $("#menu").show();
-            }
+            document.getElementById("title").style.cursor = "default";
+            hideBlock("click_message");
         });
 
         // Any point that an option list appears, its options are its
