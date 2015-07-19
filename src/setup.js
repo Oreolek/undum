@@ -68,11 +68,11 @@ function ready(fn) {
 }
 
 ready(function() {
-    // Compile additional situations from HTML
-    loadHTMLSituations();
+  // Compile additional situations from HTML
+  loadHTMLSituations();
 
-    // Handle storage.
-    if (hasLocalStorage()) {
+  // Handle storage.
+  if (hasLocalStorage()) {
     var erase = document.getElementById("erase");
     erase.addEventListener("click", doErase());
     erase.addEventListener("keydown", doErase());
@@ -82,50 +82,50 @@ ready(function() {
 
     var storedCharacter = localStorage[getSaveId()];
     if (storedCharacter) {
-    try {
-    loadGame(JSON.parse(storedCharacter));
-    save.setAttribute('disabled', true);
-    erase.setAttribute("disabled", false);
-    } catch(err) {
-    doErase(true);
-    }
+      try {
+        loadGame(JSON.parse(storedCharacter));
+        save.setAttribute('disabled', true);
+        erase.setAttribute("disabled", false);
+      } catch(err) {
+        doErase(true);
+      }
     } else {
       save.setAttribute('disabled', true);
       erase.setAttribute("disabled", true);
       startGame();
     }
-    } else {
-      $(".buttons").html("<p>"+"no_local_storage".l()+"</p>");
-      startGame();
+  } else {
+    $(".buttons").html("<p>"+"no_local_storage".l()+"</p>");
+    startGame();
+  }
+
+  // Display the "click to begin" message. (We do this in code
+  // so that, if Javascript is off, it doesn't happen.)
+  document.getElementById("click_message").style.display = '';
+
+  // Show the game when we click on the title.
+  document.getElementById("title").addEventListener('click', function() {
+    showBlock("content")
+    showBlock("content_wrapper");
+    showBlock("legal");
+    showBlock("tools_wrapper");
+    document.getElementById("title").style.cursor = "default";
+    hideBlock("click_message");
+  });
+
+/*
+  // Any point that an option list appears, its options are its
+  // first links.
+  var optionLinkEvent = function(event) {
+    // Make option clicks pass through to their first link.
+    var link = $("a", this);
+    if (link.length > 0) {
+      $(link.get(0)).click();
     }
-
-    // Display the "click to begin" message. (We do this in code
-    // so that, if Javascript is off, it doesn't happen.)
-    document.getElementById("click_message").style.display = '';
-
-    // Show the game when we click on the title.
-    document.getElementById("title").addEventListener('click', function() {
-        showBlock("content")
-        showBlock("content_wrapper");
-        showBlock("legal");
-        showBlock("tools_wrapper");
-        document.getElementById("title").style.cursor = "default";
-        hideBlock("click_message");
-        });
-
-    /*
-    // Any point that an option list appears, its options are its
-    // first links.
-    var optionLinkEvent = function(event) {
-// Make option clicks pass through to their first link.
-var link = $("a", this);
-if (link.length > 0) {
-$(link.get(0)).click();
-}
-};
-items = document.querySelectorAll("ul.options li, #menu li");
-Array.prototype.forEach.call(items, function(element, index){
-element.addEventListener('click', optionLinkEvent);
-});
+  };
+  items = document.querySelectorAll("ul.options li, #menu li");
+  Array.prototype.forEach.call(items, function(element, index){
+    element.addEventListener('click', optionLinkEvent);
+  });
 */
 });

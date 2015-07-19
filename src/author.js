@@ -299,14 +299,14 @@ SimpleSituation.prototype.optionText = function(character, system, sitn) {
  */
 var QualityDefinition = function(title, opts) {
   var myOpts = extend(opts, {
-priority: title,
-group: null,
-extraClasses: null
-});
-this.title = title;
-this.priority = myOpts.priority;
-this.group = myOpts.group;
-this.extraClasses = myOpts.extraClasses;
+    priority: title,
+    group: null,
+    extraClasses: null
+  });
+  this.title = title;
+  this.priority = myOpts.priority;
+  this.group = myOpts.group;
+  this.extraClasses = myOpts.extraClasses;
 };
 /* Formats the value (which is always numeric) into the value to
  * be displayed. The result should be HTML (but no tags are
@@ -340,8 +340,8 @@ NonZeroIntegerQuality.prototype.format = function(character, value) {
     return null;
   } else {
     return IntegerQuality.prototype.format.call(
-        this, character, value
-        );
+      this, character, value
+    );
   }
 };
 
@@ -380,13 +380,13 @@ NumericQuality.inherits(QualityDefinition);
  */
 var WordScaleQuality = function(title, values, opts) {
   var myOpts = extend(opts, {
-offset: null,
-useBonuses: true
-});
-QualityDefinition.call(this, title, opts);
-this.values = values;
-this.offset = myOpts.offset;
-this.useBonuses = myOpts.useBonuses;
+    offset: null,
+    useBonuses: true
+  });
+  QualityDefinition.call(this, title, opts);
+  this.values = values;
+  this.offset = myOpts.offset;
+  this.useBonuses = myOpts.useBonuses;
 };
 WordScaleQuality.inherits(QualityDefinition);
 WordScaleQuality.prototype.format = function(character, value) {
@@ -415,8 +415,13 @@ WordScaleQuality.prototype.format = function(character, value) {
  */
 var FudgeAdjectivesQuality = function(title, opts) {
   WordScaleQuality.call(this, title, [
-      "terrible".l(), "poor".l(), "mediocre".l(),
-      "fair".l(), "good".l(), "great".l(), "superb".l()
+    "terrible".l(),
+    "poor".l(),
+    "mediocre".l(),
+    "fair".l(),
+    "good".l(),
+    "great".l(),
+    "superb".l()
   ], opts);
   if (!('offset' in opts)) this.offset = -3;
 };
@@ -430,10 +435,10 @@ FudgeAdjectivesQuality.inherits(WordScaleQuality);
  * for QualityDefinition. */
 var OnOffQuality = function(title, opts) {
   var myOpts = extend(opts, {
-onDisplay: ""
-});
-QualityDefinition.call(this, title, opts);
-this.onDisplay = myOpts.onDisplay;
+    onDisplay: ""
+  });
+  QualityDefinition.call(this, title, opts);
+  this.onDisplay = myOpts.onDisplay;
 };
 OnOffQuality.inherits(QualityDefinition);
 OnOffQuality.prototype.format = function(character, value) {
@@ -451,12 +456,12 @@ OnOffQuality.prototype.format = function(character, value) {
  */
 var YesNoQuality = function(title, opts) {
   var myOpts = extend(opts,{
-yesDisplay: "yes".l(),
-noDisplay: "no".l()
-});
-QualityDefinition.call(this, title, opts);
-this.yesDisplay = myOpts.yesDisplay;
-this.noDisplay = myOpts.noDisplay;
+    yesDisplay: "yes".l(),
+    noDisplay: "no".l()
+  });
+  QualityDefinition.call(this, title, opts);
+  this.yesDisplay = myOpts.yesDisplay;
+  this.noDisplay = myOpts.noDisplay;
 };
 YesNoQuality.inherits(QualityDefinition);
 YesNoQuality.prototype.format = function(character, value) {
@@ -469,10 +474,10 @@ YesNoQuality.prototype.format = function(character, value) {
  * `undum.game.qualityGroups` parameter. */
 var QualityGroup = function(title, opts) {
   var myOpts = extend(opts,{
-priority: title,
-extraClasses: null
-});
-this.title = title;
-this.priority = myOpts.priority;
-this.extraClasses = myOpts.extraClasses;
+    priority: title,
+    extraClasses: null
+  });
+  this.title = title;
+  this.priority = myOpts.priority;
+  this.extraClasses = myOpts.extraClasses;
 };

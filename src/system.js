@@ -109,8 +109,8 @@ System.prototype.doLink = function(code) {
 System.prototype.clearLinks = function(code) {
   var links = document.querySelectorAll("a[href='" + code + "']");
   Array.prototype.forEach.call(links, function(element, index){
-      element.querySelectorAll("span").classList.add("ex_link");
-      });
+    element.querySelectorAll("span").classList.add("ex_link");
+  });
 };
 
 /* Given a list of situation ids, this outputs a standard option
@@ -430,13 +430,13 @@ System.prototype.animateQuality = function(quality, newValue, opts) {
 
   // Overload default options.
   var myOpts = {
-from: 0,
-      to: 1,
-      title: null,
-      showValue: true,
-      displayValue: null,
-      leftLabel: null,
-      rightLabel: null
+    from: 0,
+    to: 1,
+    title: null,
+    showValue: true,
+    displayValue: null,
+    leftLabel: null,
+    rightLabel: null
   };
   if (newValue < currentValue) {
     myOpts.from = 1;
@@ -449,9 +449,7 @@ from: 0,
   if (qualityDefinition) {
     // Work out how to display the value
     if (myOpts.displayValue === null) {
-      myOpts.displayValue = qualityDefinition.format(
-          character, newValue
-          );
+      myOpts.displayValue = qualityDefinition.format(character, newValue);
     }
 
     // Use the title.
@@ -496,24 +494,24 @@ from: 0,
 
   // Start the animation
   setTimeout(function() {
-      widthElement.animate(
-          {'width': myOpts.to*totalWidth}, 1000,
-          function() {
-          // After a moment to allow the bar to be read, we can
-          // remove it.
-          setTimeout(function() {
-              if (mobile) {
-              bar.fadeOut(1500, function() {$(this).remove();});
-              } else {
-              bar.animate({opacity: 0}, 1500).
-              slideUp(500, function() {
-                  $(this).remove();
-                  });
-              }
-              }, 2000);
+    widthElement.animate(
+      {'width': myOpts.to*totalWidth}, 1000,
+      function() {
+        // After a moment to allow the bar to be read, we can
+        // remove it.
+        setTimeout(function() {
+          if (mobile) {
+  bar.fadeOut(1500, function() {$(this).remove();});
+          } else {
+  bar.animate({opacity: 0}, 1500).
+  slideUp(500, function() {
+    $(this).remove();
+  });
           }
-          );
-      }, 500);
+        }, 2000);
+      }
+    );
+  }, 500);
 };
 
 /* The character that is passed into each situation is of this
@@ -556,85 +554,84 @@ var game = {
   /* An object mapping from the unique id of each situation, to
    * the situation object itself. This is the heart of the game
    * specification. */
-situations: {},
+  situations: {},
 
-            /* The unique id of the situation to enter at the start of a
-             * new game. */
-            start: "start",
+  /* The unique id of the situation to enter at the start of a
+   * new game. */
+  start: "start",
 
-            // Quality display definitions
+  // Quality display definitions
 
-            /* An object mapping the unique id of each quality to its
-             * QualityDefinition. You don't need definitions for every
-             * quality, but only qualities in this mapping will be
-             * displayed in the character box of the UI. */
-            qualities: {},
+  /* An object mapping the unique id of each quality to its
+   * QualityDefinition. You don't need definitions for every
+   * quality, but only qualities in this mapping will be
+   * displayed in the character box of the UI. */
+  qualities: {},
 
-            /* Qualities can have an optional group Id. This maps those
-             * Ids to the group definitions that says how to format its
-             * qualities.
-             */
-            qualityGroups: {},
+  /* Qualities can have an optional group Id. This maps those
+   * Ids to the group definitions that says how to format its
+   * qualities.
+   */
+  qualityGroups: {},
 
+  // Hooks
 
-            // Hooks
+  /* This function is called at the start of the game. It is
+   * normally overridden to provide initial character creation
+   * (setting initial quality values, setting the
+   * character-text. This is optional, however, as set-up
+   * processing could also be done by the first situation's
+   * enter function. If this function is given it should have
+   * the signature function(character, system).
+   */
+  init: null,
 
-            /* This function is called at the start of the game. It is
-             * normally overridden to provide initial character creation
-             * (setting initial quality values, setting the
-             * character-text. This is optional, however, as set-up
-             * processing could also be done by the first situation's
-             * enter function. If this function is given it should have
-             * the signature function(character, system).
-             */
-            init: null,
+  /* This function is called before entering any new
+   * situation. It is called before the corresponding situation
+   * has its `enter` method called. It can be used to implement
+   * timed triggers, but is totally optional. If this function
+   * is given it should have the signature:
+   *
+   * function(character, system, oldSituationId, newSituationId);
+   */
+  enter: null,
 
-            /* This function is called before entering any new
-             * situation. It is called before the corresponding situation
-             * has its `enter` method called. It can be used to implement
-             * timed triggers, but is totally optional. If this function
-             * is given it should have the signature:
-             *
-             * function(character, system, oldSituationId, newSituationId);
-             */
-            enter: null,
+  /* Hook for when the situation has already been carried out
+   * and printed. The signature is:
+   *
+   * function(character, system, oldSituationId, newSituationId);
+   */
+  afterEnter: null,
 
-            /* Hook for when the situation has already been carried out
-             * and printed. The signature is:
-             *
-             * function(character, system, oldSituationId, newSituationId);
-             */
-            afterEnter: null,
+  /* This function is called before carrying out any action in
+   * any situation. It is called before the corresponding
+   * situation has its `act` method called. If this optional
+   * function is given it should have the signature:
+   *
+   * function(character, system, situationId, actionId);
+   *
+   * If the function returns true, then it is indicating that it
+   * has consumed the action, and the action will not be passed
+   * on to the situation. Note that this is the only one of
+   * these global handlers that can consume the event.
+   */
+  beforeAction: null,
 
-            /* This function is called before carrying out any action in
-             * any situation. It is called before the corresponding
-             * situation has its `act` method called. If this optional
-             * function is given it should have the signature:
-             *
-             * function(character, system, situationId, actionId);
-             *
-             * If the function returns true, then it is indicating that it
-             * has consumed the action, and the action will not be passed
-             * on to the situation. Note that this is the only one of
-             * these global handlers that can consume the event.
-             */
-            beforeAction: null,
+  /* This function is called after carrying out any action in
+   * any situation. It is called after the corresponding
+   * situation has its `act` method called. If this optional
+   * function is given it should have the signature:
+   *
+   * function(character, system, situationId, actionId);
+   */
+  afterAction: null,
 
-            /* This function is called after carrying out any action in
-             * any situation. It is called after the corresponding
-             * situation has its `act` method called. If this optional
-             * function is given it should have the signature:
-             *
-             * function(character, system, situationId, actionId);
-             */
-            afterAction: null,
-
-            /* This function is called after leaving any situation. It is
-             * called after the corresponding situation has its `exit`
-             * method called. If this optional function is given it should
-             * have the signature:
-             *
-             * function(character, system, oldSituationId, newSituationId);
-             */
-            exit: null
+  /* This function is called after leaving any situation. It is
+   * called after the corresponding situation has its `exit`
+   * method called. If this optional function is given it should
+   * have the signature:
+   *
+   * function(character, system, oldSituationId, newSituationId);
+   */
+  exit: null
 };
