@@ -82,7 +82,6 @@ and is also included in the repository.
 The source code for all the files is also heavily commented, so if you
 get stuck, go in and read it.
 
-
 ## Deploying
 
 To deploy your game, just upload your HTML file and the `media` folder
@@ -119,6 +118,9 @@ This assumes you use the same directory lay out that I do. You are
 welcome to change things around, of course, as long as you work and
 change the references.
 
+## Hacking Undum
+For this, you will need [Gulp.](http://gulpjs.com) Just install it
+and call `gulp` command.
 
 ## Undum
 
