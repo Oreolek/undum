@@ -99,6 +99,9 @@ ready(function() {
     startGame();
   }
 
+  // handle the link clicks
+  document.getElementById("content").addEventListener("click", linkClickHandler, false);
+
   // Display the "click to begin" message. (We do this in code
   // so that, if Javascript is off, it doesn't happen.)
   showBlock("click_message");

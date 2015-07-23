@@ -290,8 +290,8 @@ var startOutputTransaction = function() {
   }
   // The default is "all the way down".
   scrollStack.push(
-      $("#content").height() + $("#title").height() + 60
-      );
+    document.getElementById("content").offsetHeight + document.getElementById("title").offsetHeight + 60
+  );
 };
 var continueOutputTransaction = function() {
   if (pendingFirstWrite) {
@@ -342,7 +342,7 @@ var processLink = function(code) {
   endOutputTransaction();
 
   // We're able to save, if we weren't already.
-  $("#save").attr('disabled', false);
+  document.getElementById("save").setAttribute('disabled', false);
 };
 
 /* This gets called to actually do the work of processing a code.
@@ -392,13 +392,21 @@ var processOneLink = function(code) {
   }
 };
 
+/* This function listens on content block to filter out link clicks. */
+var linkClickHandler = function(event) {
+  if (event.target.tagName.toLowerCase() === 'a') {
+    event.preventDefault();
+    processClick(event.target.href);
+  }
+}
+
 /* This gets called when the user clicks a link to carry out an
  * action. */
 var processClick = function(code) {
   var now = (new Date()).getTime() * 0.001;
   system.time = now - startTime;
   progress.sequence.push({link:code, when:system.time});
-  processLink(code);
+  return processLink(code);
 };
 
 /* Transitions between situations. */
