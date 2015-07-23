@@ -31,9 +31,6 @@ var character = null;
 /* Tracks whether we're in interactive mode or batch mode. */
 var interactive = true;
 
-/* Tracks whether we're mobile or not. */
-var mobile = isMobileDevice();
-
 /* The system time when the game was initialized. */
 var startTime;
 
@@ -87,29 +84,28 @@ var parseFn = function(str) {
 var loadHTMLSituations = function() {
   var $htmlSituations = document.querySelectorAll("div.situation");
   Array.prototype.forEach.call($htmlSituations, function($situation){
-      var id = $situation.getAttribute("id");
-      assert(game.situations[id] === undefined,
-          "existing_situation".l({id:id}));
+    var id = $situation.getAttribute("id");
+    assert(game.situations[id] === undefined, "existing_situation".l({id:id}));
 
-      var content = $situation.innerHTML;
-      var opts = {
+    var content = $situation.innerHTML;
+    var opts = {
       // Situation content
-optionText: $situation.getAttribute("data-option-text"),
-canView: parseFn($situation.getAttribute("data-can-view")),
-canChoose: parseFn($situation.getAttribute("data-can-choose")),
-priority: parse($situation.getAttribute("data-priority")),
-frequency: parse($situation.getAttribute("data-frequency")),
-displayOrder: parse($situation.getAttribute("data-display-order")),
-tags: parseList($situation.getAttribute("data-tags"), false),
-// Simple Situation content.
-heading: $situation.getAttribute("data-heading"),
-choices: parseList($situation.getAttribute("data-choices"), true),
-minChoices: parse($situation.getAttribute("data-min-choices")),
-maxChoices: parse($situation.getAttribute("data-max-choices"))
-};
+      optionText: $situation.getAttribute("data-option-text"),
+      canView: parseFn($situation.getAttribute("data-can-view")),
+      canChoose: parseFn($situation.getAttribute("data-can-choose")),
+      priority: parse($situation.getAttribute("data-priority")),
+      frequency: parse($situation.getAttribute("data-frequency")),
+      displayOrder: parse($situation.getAttribute("data-display-order")),
+      tags: parseList($situation.getAttribute("data-tags"), false),
+      // Simple Situation content.
+      heading: $situation.getAttribute("data-heading"),
+      choices: parseList($situation.getAttribute("data-choices"), true),
+      minChoices: parse($situation.getAttribute("data-min-choices")),
+      maxChoices: parse($situation.getAttribute("data-max-choices"))
+    };
 
-game.situations[id] = new SimpleSituation(content, opts);
-});
+    game.situations[id] = new SimpleSituation(content, opts);
+  });
 };
 
 
@@ -175,8 +171,8 @@ var showHighlight = function(domElement) {
   }
   showBlock(highlight);
   setTimeout(function() {
-      hideBlock(highlight);
-      }, 2000);
+    hideBlock(highlight);
+  }, 2000);
 };
 
 /* Finds the correct location and inserts a particular DOM element
@@ -308,8 +304,8 @@ var continueOutputTransaction = function() {
 var endOutputTransaction = function() {
   var scrollPoint = scrollStack.pop();
   if (scrollStack.length === 0 && scrollPoint !== null) {
-    if (interactive && !mobile) {
-      $("body, html").animate({scrollTop: scrollPoint}, 500);
+    if (interactive) {
+      window.scroll(0,scrollPoint);
     }
     scrollPoint = null;
   }
@@ -421,32 +417,22 @@ var doTransitionTo = function(newSituationId) {
     if (game.exit) {
       game.exit(character, system, oldSituationId, newSituationId);
     }
-
-    //  Remove links and transient sections.
-    $('#content a').each(function(index, element) {
-        var a = $(element);
-        if (a.hasClass('sticky') || a.attr("href").match(/[?&]sticky[=&]?/))
-        return;
-        a.replaceWith($("<span>").addClass("ex_link").html(a.html()));
-        });
-    var contentToHide = $('#content .transient, #content ul.options');
-    contentToHide.add($("#content a").filter(function(){
-          return this.attr("href").match(/[?&]transient[=&]?/);
-          }));
-    if (interactive) {
-      if (mobile) {
-        contentToHide.fadeOut(2000);
-      } else {
-        contentToHide.
-          animate({opacity: 0}, 1500).
-          slideUp(500, function() {
-              $(this).remove();
-              });
-      }
-    } else {
-      contentToHide.remove();
-    }
   }
+
+  //  Remove links and transient sections.
+  var content = document.getElementById("content");
+  links = content.querySelectorAll("a");
+  Array.prototype.forEach.call(links, function(element, index) {
+    var a = element;
+    if (a.classList.contains('sticky') || a.getAttribute("href").match(/[?&]sticky[=&]?/))
+      return;
+    if (a.getAttribute("href").match(/[?&]transient[=&]?/)) {
+      hideBlock(a);
+    }
+    a.innerHTML = "<span class='ex_link'>"+a.innerHTML+"</span>";
+  });
+  hideBlock(content.querySelectorAll(".transient"));
+  hideBlock(content.querySelectorAll("ul.options"));
 
   // Move the character.
   current = newSituationId;
@@ -473,26 +459,25 @@ var augmentLinks = function(content) {
   output.innerHTML = content;
   var links = output.querySelectorAll("a");
   Array.prototype.forEach.call(links, function(element, index){
-      var href = element.getAttribute('href');
-      if (!element.classList.contains("raw")|| href.match(/[?&]raw[=&]?/)) {
+    var href = element.getAttribute('href');
+    if (!element.classList.contains("raw")|| href.match(/[?&]raw[=&]?/)) {
       if (href.match(linkRe)) {
-      element.addEventListener("click", function(event) {
+        element.onclick = function(event) {
           event.preventDefault();
 
-          // If we're a once-click, remove all matching
-          // links.
+          // If we're a once-click, remove all matching links.
           if (element.classList.contains("once") || href.match(/[?&]once[=&]?/)) {
-          system.clearLinks(href);
+            system.clearLinks(href);
           }
 
           processClick(href);
           return false;
-          });
+        };
       } else {
-      element.classList.add("raw");
+        element.classList.add("raw");
       }
-      }
-      });
+    }
+  });
 
   return output.innerHTML;
 };

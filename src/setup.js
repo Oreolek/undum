@@ -74,11 +74,11 @@ ready(function() {
   // Handle storage.
   if (hasLocalStorage()) {
     var erase = document.getElementById("erase");
-    erase.addEventListener("click", doErase());
-    erase.addEventListener("keydown", doErase());
+    erase.onclick = doErase;
+    erase.keydown = doErase;
     var save = document.getElementById("save");
-    save.addEventListener("click", saveGame);
-    save.addEventListener("keydown", saveGame);
+    save.onclick = saveGame;
+    save.keydown = saveGame;
 
     var storedCharacter = localStorage[getSaveId()];
     if (storedCharacter) {
@@ -95,23 +95,25 @@ ready(function() {
       startGame();
     }
   } else {
-    $(".buttons").html("<p>"+"no_local_storage".l()+"</p>");
+    document.querySelector(".buttons").innerHTML = "<p>"+"no_local_storage".l()+"</p>";
     startGame();
   }
 
   // Display the "click to begin" message. (We do this in code
   // so that, if Javascript is off, it doesn't happen.)
-  document.getElementById("click_message").style.display = '';
+  showBlock("click_message");
 
   // Show the game when we click on the title.
-  document.getElementById("title").addEventListener('click', function() {
+  // Note: if you do events with onclick, you have to have only one click event handler.
+  // You can use more complex methods if you expect to have more.
+  document.getElementById("title").onclick = function() {
     showBlock("content")
     showBlock("content_wrapper");
     showBlock("legal");
     showBlock("tools_wrapper");
     document.getElementById("title").style.cursor = "default";
     hideBlock("click_message");
-  });
+  };
 
 /*
   // Any point that an option list appears, its options are its

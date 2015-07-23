@@ -38,6 +38,16 @@ scripting system with limited functionality. You can take control of
 anything you want. Or you can just keep things simple using a bunch of
 simple functions provided by Undum.
 
+## What is the difference from the original Undum?
+
+* This branch is rewritten on pure Javascript. You are no longer bound by jQuery.
+Also, the code is more hackable now.
+
+* The code uses Gulp as build system, making it even more hack-friendly.
+
+* The code no longer thinks about CSS design. It should not think about whether the player is on mobile or not, it is a job for CSS. Also, animations are all CSS.
+
+* No progress bars at the moment, so no animateQuality.
 
 ## Compatibility
 

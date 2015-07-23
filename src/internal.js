@@ -47,12 +47,6 @@ var hasLocalStorage = function() {
   return hasStorage;
 };
 
-var isMobileDevice = function() {
-  return (navigator.userAgent.toLowerCase().search(
-        /iphone|ipad|palm|blackberry|android/
-        ) >= 0 || document.querySelectorAll('html').offsetWidth <= 640);
-};
-
 /// Animations - you can totally redefine these! Fade in and fade out by default.
 /// @param id string or object
 var showBlock = function(id) {
@@ -66,11 +60,24 @@ var showBlock = function(id) {
 }
 
 var hideBlock = function(id) {
+  var block = id; // typeof block === "element"
   if (typeof id === "string") {
     var block = document.getElementById(id);
   }
-  if (typeof id === "element") {
-    var block = id;
+  if (typeof id === "object") { // probably NodeList
+    if (id.length == 0)
+      return;
+    Array.prototype.forEach.call(id, function(element, index) {
+      element.classList.add('hide');
+      element.classList.remove('show');
+    });
+    return;
+  }
+  if (typeof block.classList === "undefined")
+  {
+    console.log("Tried to hide an undefined block.");
+    console.log(id);
+    return;
   }
   block.classList.add('hide');
   block.classList.remove('show');
@@ -111,4 +118,3 @@ var extend = function(out) {
 
   return out;
 };
-
